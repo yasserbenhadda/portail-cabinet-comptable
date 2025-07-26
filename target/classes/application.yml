@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: portail-cabinet-comptable
+  datasource:
+    url: jdbc:postgresql://localhost:5432/portail_cabinet_db
+    username: portail_user
+    password: portail_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+jwt:
+  secret: mySecretKey123456789
+  expiration: 86400000
+
+file:
+  upload-dir: ./uploads
+
+server:
+  port: 8080 
