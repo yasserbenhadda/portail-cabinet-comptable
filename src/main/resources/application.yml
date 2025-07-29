@@ -3,8 +3,8 @@ spring:
     name: portail-cabinet-comptable
   datasource:
     url: jdbc:postgresql://localhost:5432/portail_cabinet_db
-    username: portail_user
-    password: portail_password
+    username: postgres
+    password: yasser44
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,4 +21,4 @@ file:
   upload-dir: ./uploads
 
 server:
-  port: 8080 
+  port: 8085 
