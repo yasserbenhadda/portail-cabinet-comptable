@@ -18,56 +18,49 @@ public class ChatBotAI {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @NotBlank(message = "La question est obligatoire")
     @Column(name = "question", nullable = false, columnDefinition = "TEXT")
     private String question;
 
     @NotBlank(message = "La réponse est obligatoire")
-    @Column(name = "response", nullable = false, columnDefinition = "TEXT")
-    private String response;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doc_analyse_id")
-    private Document docAnalyse;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(name = "date_interaction", nullable = false)
-    private LocalDateTime dateInteraction;
-
-    @Column(name = "confiance_score")
-    private Double confianceScore;
+    @Column(name = "reponse", nullable = false, columnDefinition = "TEXT")
+    private String reponse;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_analyse")
+    @Column(name = "type_analyse", nullable = false)
     private TypeAnalyse typeAnalyse;
+
+    @Column(name = "date_creation", nullable = false)
+    private LocalDateTime dateCreation;
+
+    @Column(name = "confiance")
+    private Double confiance;
 
     @PrePersist
     protected void onCreate() {
-        if (dateInteraction == null) {
-            dateInteraction = LocalDateTime.now();
+        if (dateCreation == null) {
+            dateCreation = LocalDateTime.now();
         }
         if (typeAnalyse == null) {
             typeAnalyse = TypeAnalyse.GENERALE;
+        }
+        if (confiance == null) {
+            confiance = 0.0;
         }
     }
 
     // Constructeurs
     public ChatBotAI() {}
 
-    public ChatBotAI(String question, String response, User user) {
-        this.question = question;
-        this.response = response;
+    public ChatBotAI(User user, String question, String reponse, TypeAnalyse typeAnalyse) {
         this.user = user;
-    }
-
-    public ChatBotAI(String question, String response, Document docAnalyse, User user) {
         this.question = question;
-        this.response = response;
-        this.docAnalyse = docAnalyse;
-        this.user = user;
+        this.reponse = reponse;
+        this.typeAnalyse = typeAnalyse;
     }
 
     // Getters et Setters
@@ -79,30 +72,6 @@ public class ChatBotAI {
         this.id = id;
     }
 
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public String getResponse() {
-        return response;
-    }
-
-    public void setResponse(String response) {
-        this.response = response;
-    }
-
-    public Document getDocAnalyse() {
-        return docAnalyse;
-    }
-
-    public void setDocAnalyse(Document docAnalyse) {
-        this.docAnalyse = docAnalyse;
-    }
-
     public User getUser() {
         return user;
     }
@@ -111,20 +80,20 @@ public class ChatBotAI {
         this.user = user;
     }
 
-    public LocalDateTime getDateInteraction() {
-        return dateInteraction;
+    public String getQuestion() {
+        return question;
     }
 
-    public void setDateInteraction(LocalDateTime dateInteraction) {
-        this.dateInteraction = dateInteraction;
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
-    public Double getConfianceScore() {
-        return confianceScore;
+    public String getReponse() {
+        return reponse;
     }
 
-    public void setConfianceScore(Double confianceScore) {
-        this.confianceScore = confianceScore;
+    public void setReponse(String reponse) {
+        this.reponse = reponse;
     }
 
     public TypeAnalyse getTypeAnalyse() {
@@ -135,16 +104,32 @@ public class ChatBotAI {
         this.typeAnalyse = typeAnalyse;
     }
 
+    public LocalDateTime getDateCreation() {
+        return dateCreation;
+    }
+
+    public void setDateCreation(LocalDateTime dateCreation) {
+        this.dateCreation = dateCreation;
+    }
+
+    public Double getConfiance() {
+        return confiance;
+    }
+
+    public void setConfiance(Double confiance) {
+        this.confiance = confiance;
+    }
+
     @Override
     public String toString() {
         return "ChatBotAI{" +
                 "id=" + id +
-                ", question='" + question + '\'' +
-                ", response='" + response + '\'' +
-                ", docAnalyse=" + (docAnalyse != null ? docAnalyse.getId() : null) +
                 ", user=" + (user != null ? user.getId() : null) +
-                ", dateInteraction=" + dateInteraction +
+                ", question='" + question + '\'' +
+                ", reponse='" + reponse + '\'' +
                 ", typeAnalyse=" + typeAnalyse +
+                ", dateCreation=" + dateCreation +
+                ", confiance=" + confiance +
                 '}';
     }
 } 

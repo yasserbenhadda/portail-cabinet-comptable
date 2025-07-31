@@ -27,6 +27,10 @@ public class Message {
     @JoinColumn(name = "destinataire_id", nullable = false)
     private User destinataire;
 
+    @NotBlank(message = "Le sujet du message est obligatoire")
+    @Column(name = "sujet", nullable = false, length = 200)
+    private String sujet;
+
     @NotBlank(message = "Le contenu du message est obligatoire")
     @Column(name = "contenu", nullable = false, columnDefinition = "TEXT")
     private String contenu;
@@ -57,15 +61,17 @@ public class Message {
     // Constructeurs
     public Message() {}
 
-    public Message(User expediteur, User destinataire, String contenu) {
+    public Message(User expediteur, User destinataire, String sujet, String contenu) {
         this.expediteur = expediteur;
         this.destinataire = destinataire;
+        this.sujet = sujet;
         this.contenu = contenu;
     }
 
-    public Message(User expediteur, User destinataire, String contenu, String objet) {
+    public Message(User expediteur, User destinataire, String sujet, String contenu, String objet) {
         this.expediteur = expediteur;
         this.destinataire = destinataire;
+        this.sujet = sujet;
         this.contenu = contenu;
         this.objet = objet;
     }
@@ -93,6 +99,14 @@ public class Message {
 
     public void setDestinataire(User destinataire) {
         this.destinataire = destinataire;
+    }
+
+    public String getSujet() {
+        return sujet;
+    }
+
+    public void setSujet(String sujet) {
+        this.sujet = sujet;
     }
 
     public String getContenu() {
@@ -141,6 +155,7 @@ public class Message {
                 "id=" + id +
                 ", expediteur=" + (expediteur != null ? expediteur.getId() : null) +
                 ", destinataire=" + (destinataire != null ? destinataire.getId() : null) +
+                ", sujet='" + sujet + '\'' +
                 ", contenu='" + contenu + '\'' +
                 ", dateEnvoi=" + dateEnvoi +
                 ", statut=" + statut +

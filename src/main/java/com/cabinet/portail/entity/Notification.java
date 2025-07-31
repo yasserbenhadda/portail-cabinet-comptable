@@ -20,15 +20,23 @@ public class Notification {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "destinataire_id")
+    private User destinataire;
+
+    @NotBlank(message = "Le titre de la notification est obligatoire")
+    @Column(name = "titre", nullable = false, length = 200)
+    private String titre;
 
     @NotBlank(message = "Le message de notification est obligatoire")
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "is_read", nullable = false)
-    private Boolean isRead = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private NotificationType type;
+
+    @Column(name = "lue", nullable = false)
+    private boolean lue = false;
 
     @Column(name = "date_creation", nullable = false)
     private LocalDateTime dateCreation;
@@ -36,20 +44,10 @@ public class Notification {
     @Column(name = "date_lecture")
     private LocalDateTime dateLecture;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    private NotificationType type;
-
-    @Column(name = "lien")
-    private String lien;
-
     @PrePersist
     protected void onCreate() {
         if (dateCreation == null) {
             dateCreation = LocalDateTime.now();
-        }
-        if (isRead == null) {
-            isRead = false;
         }
         if (type == null) {
             type = NotificationType.INFO;
@@ -59,13 +57,9 @@ public class Notification {
     // Constructeurs
     public Notification() {}
 
-    public Notification(User user, String message) {
-        this.user = user;
-        this.message = message;
-    }
-
-    public Notification(User user, String message, NotificationType type) {
-        this.user = user;
+    public Notification(User destinataire, String titre, String message, NotificationType type) {
+        this.destinataire = destinataire;
+        this.titre = titre;
         this.message = message;
         this.type = type;
     }
@@ -79,12 +73,20 @@ public class Notification {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public User getDestinataire() {
+        return destinataire;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setDestinataire(User destinataire) {
+        this.destinataire = destinataire;
+    }
+
+    public String getTitre() {
+        return titre;
+    }
+
+    public void setTitre(String titre) {
+        this.titre = titre;
     }
 
     public String getMessage() {
@@ -95,13 +97,21 @@ public class Notification {
         this.message = message;
     }
 
-    public Boolean getIsRead() {
-        return isRead;
+    public NotificationType getType() {
+        return type;
     }
 
-    public void setIsRead(Boolean isRead) {
-        this.isRead = isRead;
-        if (isRead && this.dateLecture == null) {
+    public void setType(NotificationType type) {
+        this.type = type;
+    }
+
+    public boolean isLue() {
+        return lue;
+    }
+
+    public void setLue(boolean lue) {
+        this.lue = lue;
+        if (lue && this.dateLecture == null) {
             this.dateLecture = LocalDateTime.now();
         }
     }
@@ -122,31 +132,16 @@ public class Notification {
         this.dateLecture = dateLecture;
     }
 
-    public NotificationType getType() {
-        return type;
-    }
-
-    public void setType(NotificationType type) {
-        this.type = type;
-    }
-
-    public String getLien() {
-        return lien;
-    }
-
-    public void setLien(String lien) {
-        this.lien = lien;
-    }
-
     @Override
     public String toString() {
         return "Notification{" +
                 "id=" + id +
-                ", user=" + (user != null ? user.getId() : null) +
+                ", destinataire=" + (destinataire != null ? destinataire.getId() : null) +
+                ", titre='" + titre + '\'' +
                 ", message='" + message + '\'' +
-                ", isRead=" + isRead +
-                ", dateCreation=" + dateCreation +
                 ", type=" + type +
+                ", lue=" + lue +
+                ", dateCreation=" + dateCreation +
                 '}';
     }
 } 
