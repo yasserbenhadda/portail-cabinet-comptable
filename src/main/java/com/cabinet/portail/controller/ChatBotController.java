@@ -4,6 +4,8 @@ import com.cabinet.portail.dto.request.ChatBotRequest;
 import com.cabinet.portail.dto.response.ChatBotResponse;
 import com.cabinet.portail.entity.ChatBotAI;
 import com.cabinet.portail.entity.TypeAnalyse;
+import com.cabinet.portail.repository.ChatBotRepository;
+import com.cabinet.portail.repository.UserRepository;
 import com.cabinet.portail.service.ChatBotService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +33,48 @@ public class ChatBotController {
     @Autowired
     private ChatBotService chatBotService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ChatBotRepository chatBotRepository;
+
     /**
      * Analyser un document avec l'IA
      * 
      * @param file fichier à analyser
+     * @param userId ID de l'utilisateur
      * @param typeAnalyse type d'analyse à effectuer
      * @return résultat de l'analyse
      */
     @PostMapping("/analyze-document")
     public ResponseEntity<ChatBotResponse> analyzeDocument(
             @RequestParam("file") MultipartFile file,
+            @RequestParam("userId") Long userId,
             @RequestParam("typeAnalyse") TypeAnalyse typeAnalyse) {
         try {
+            System.out.println("=== DEBUG: Analyse document ===");
+            System.out.println("Fichier: " + file.getOriginalFilename());
+            System.out.println("UserId: " + userId);
+            System.out.println("TypeAnalyse: " + typeAnalyse);
+            
             ChatBotAI result = chatBotService.analyzeDocument(file, typeAnalyse);
-            ChatBotResponse response = convertToResponse(result);
+            
+            // Associer l'utilisateur au résultat
+            result.setUser(userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé")));
+            
+            ChatBotAI savedResult = chatBotRepository.save(result);
+            ChatBotResponse response = convertToResponse(savedResult);
+            
+            System.out.println("=== SUCCESS: Document analysé avec ID: " + savedResult.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            System.err.println("=== ERROR: Erreur lors de l'analyse du document ===");
+            System.err.println("Message d'erreur: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
         }
     }
 

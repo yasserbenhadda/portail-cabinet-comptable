@@ -39,10 +39,12 @@ public interface ChatBotRepository extends JpaRepository<ChatBotAI, Long> {
     @Query("SELECT c FROM ChatBotAI c WHERE c.user.id = :userId AND (LOWER(c.question) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(c.reponse) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) ORDER BY c.dateCreation DESC")
     List<ChatBotAI> searchConversationsByUserAndContent(@Param("userId") Long userId, @Param("searchTerm") String searchTerm);
 
-    // Méthodes avec User (pour compatibilité)
-    List<ChatBotAI> findByUser(Long userId);
+    // Méthodes avec User (pour compatibilité) - Utiliser des requêtes personnalisées
+    @Query("SELECT c FROM ChatBotAI c WHERE c.user.id = :userId")
+    List<ChatBotAI> findByUser(@Param("userId") Long userId);
     
-    List<ChatBotAI> findByUserAndTypeAnalyse(Long userId, TypeAnalyse typeAnalyse);
+    @Query("SELECT c FROM ChatBotAI c WHERE c.user.id = :userId AND c.typeAnalyse = :typeAnalyse")
+    List<ChatBotAI> findByUserAndTypeAnalyse(@Param("userId") Long userId, @Param("typeAnalyse") TypeAnalyse typeAnalyse);
     
     @Query("SELECT COUNT(c) FROM ChatBotAI c WHERE c.user.id = :userId")
     long countByUser(@Param("userId") Long userId);

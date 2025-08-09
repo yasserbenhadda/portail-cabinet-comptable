@@ -40,6 +40,12 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> createNotification(
             @Valid @RequestBody NotificationRequest notificationRequest) {
         try {
+            System.out.println("=== DEBUG: Création notification ===");
+            System.out.println("DestinataireId: " + notificationRequest.getDestinataireId());
+            System.out.println("Titre: " + notificationRequest.getTitre());
+            System.out.println("Message: " + notificationRequest.getMessage());
+            System.out.println("Type: " + notificationRequest.getType());
+            
             Notification notification = notificationService.createNotification(
                 notificationRequest.getDestinataireId(),
                 notificationRequest.getTitre(),
@@ -48,9 +54,14 @@ public class NotificationController {
             );
             
             NotificationResponse response = convertToResponse(notification);
+            System.out.println("=== SUCCESS: Notification créée avec ID: " + notification.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            System.err.println("=== ERROR: Erreur lors de la création de notification ===");
+            System.err.println("Message d'erreur: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(null);
         }
     }
 
