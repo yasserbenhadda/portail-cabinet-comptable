@@ -1,0 +1,51 @@
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Material Design theme overrides */
+.mat-mdc-raised-button.mat-primary {
+  background-color: #667eea;
+}
+
+.mat-mdc-raised-button.mat-primary:hover {
+  background-color: #5a6fd8;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-focus-overlay {
+  background-color: rgba(102, 126, 234, 0.1);
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-form-field-infix {
+  border-color: #667eea;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+} 
