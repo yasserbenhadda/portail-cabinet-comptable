@@ -1,0 +1,188 @@
+<div class="user-management-container">
+  <div class="header">
+    <h2>Gestion des Utilisateurs</h2>
+    <button class="btn-primary" (click)="openCreateUserModal()">
+      <i class="fas fa-plus"></i> Nouvel Utilisateur
+    </button>
+  </div>
+
+  <!-- Barre de recherche et filtres -->
+  <div class="filters">
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Rechercher un utilisateur..." 
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+      >
+      <i class="fas fa-search"></i>
+    </div>
+    
+    <div class="role-filter">
+      <select [(ngModel)]="selectedRole" (change)="onRoleFilterChange()">
+        <option value="">Tous les rôles</option>
+        <option value="ADMIN">Administrateur</option>
+        <option value="COMPTABLE">Comptable</option>
+        <option value="CLIENT">Client</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="users-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Date Création</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" [class.inactive]="!user.actif">
+          <td>{{ user.nom }}</td>
+          <td>{{ user.prenom }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="role-badge" [class]="'role-' + user.role.toLowerCase()">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class]="user.actif ? 'active' : 'inactive'">
+              {{ user.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td>{{ user.dateCreation | date:'dd/MM/yyyy' }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="editUser(user)" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon" (click)="toggleUserStatus(user)" title="Activer/Désactiver">
+              <i class="fas" [class.fa-toggle-on]="user.actif" [class.fa-toggle-off]="!user.actif"></i>
+            </button>
+            <button class="btn-icon danger" (click)="deleteUser(user)" title="Supprimer">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      [disabled]="currentPage === 0" 
+      (click)="previousPage()"
+      class="btn-page"
+    >
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <span class="page-info">
+      Page {{ currentPage + 1 }} sur {{ totalPages }}
+    </span>
+    
+    <button 
+      [disabled]="currentPage === totalPages - 1" 
+      (click)="nextPage()"
+      class="btn-page"
+    >
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Modal de création/modification d'utilisateur -->
+  <div class="modal" *ngIf="showUserModal" (click)="closeUserModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingUser ? 'Modifier' : 'Créer' }} un Utilisateur</h3>
+        <button class="btn-close" (click)="closeUserModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="nom">Nom *</label>
+          <input 
+            type="text" 
+            id="nom" 
+            formControlName="nom" 
+            placeholder="Nom de famille"
+          >
+          <div class="error" *ngIf="userForm.get('nom')?.invalid && userForm.get('nom')?.touched">
+            Le nom est requis
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="prenom">Prénom *</label>
+          <input 
+            type="text" 
+            id="prenom" 
+            formControlName="prenom" 
+            placeholder="Prénom"
+          >
+          <div class="error" *ngIf="userForm.get('prenom')?.invalid && userForm.get('prenom')?.touched">
+            Le prénom est requis
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            placeholder="email@exemple.com"
+          >
+          <div class="error" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+            Email invalide
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="!editingUser">
+          <label for="password">Mot de passe *</label>
+          <input 
+            type="password" 
+            id="password" 
+            formControlName="password" 
+            placeholder="Mot de passe"
+          >
+          <div class="error" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+            Le mot de passe est requis (min 6 caractères)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="role">Rôle *</label>
+          <select id="role" formControlName="role">
+            <option value="">Sélectionner un rôle</option>
+            <option value="ADMIN">Administrateur</option>
+            <option value="COMPTABLE">Comptable</option>
+            <option value="CLIENT">Client</option>
+          </select>
+          <div class="error" *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
+            Le rôle est requis
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="closeUserModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="userForm.invalid || isSubmitting">
+            <span *ngIf="!isSubmitting">{{ editingUser ? 'Modifier' : 'Créer' }}</span>
+            <span *ngIf="isSubmitting">En cours...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
