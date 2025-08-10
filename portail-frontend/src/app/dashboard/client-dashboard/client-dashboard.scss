@@ -1,0 +1,11 @@
+.dashboard-container{padding:2rem;max-width:1000px;margin:0 auto}
+.dashboard-header{background:#ffffff;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between}
+.dashboard-header h1{margin:0;color:#2c3e50;font-size:1.8rem;font-weight:700;letter-spacing:.2px}
+.btn-logout{background:#dc3545;color:#fff;border:none;border-radius:8px;padding:.55rem 1rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:.2s}
+.btn-logout:hover{background:#c82333;transform:translateY(-1px)}
+.actions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;justify-items:center}
+.actions-grid.center{justify-content:center}
+.action-btn,.nav-btn{width:100%;max-width:260px;background:linear-gradient(135deg,#f8f9fb 0%,#f1f4f8 100%);border:2px solid #e9edf2;padding:1.35rem;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.6rem;transition:.2s;color:#3f4c5a;text-align:center}
+.action-btn i,.nav-btn i{font-size:1.8rem;color:#6c7a89}
+.action-btn:hover,.nav-btn:hover{background:#eef2f7;border-color:#cfd8e3;transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.actions-grid.bottom{margin-top:1.5rem}

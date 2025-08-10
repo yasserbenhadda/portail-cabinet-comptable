@@ -1,17 +1,43 @@
 <div class="login-container">
   <div class="login-card">
     <h2>Connexion</h2>
-    <form>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="votre@email.com">
+        <input
+          type="email"
+          id="email"
+          placeholder="votre@email.com"
+          formControlName="email"
+        >
+        <div class="error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+          Email invalide
+        </div>
       </div>
+
       <div class="form-group">
         <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" placeholder="Votre mot de passe">
+        <input
+          type="password"
+          id="password"
+          placeholder="Votre mot de passe"
+          formControlName="password"
+        >
+        <div class="error" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+          Mot de passe requis (min 6)
+        </div>
       </div>
-      <button type="submit" class="login-btn">Se connecter</button>
+
+      <button type="submit" class="login-btn" [disabled]="form.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">Se connecter</span>
+        <span *ngIf="isSubmitting">Connexion...</span>
+      </button>
+
+      <div class="error" *ngIf="errorMessage" style="margin-top:1rem; text-align:center">
+        {{ errorMessage }}
+      </div>
     </form>
-    <!-- Supprimé le lien d'inscription public -->
+    <!-- Lien d'inscription retiré (admin-only) -->
   </div>
 </div>
