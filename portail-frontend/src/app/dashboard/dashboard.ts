@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { DashboardService, DashboardStats } from '../core/services/dashboard.service';
 import { AuthService, User } from '../core/services/auth.service';
 import { Router } from '@angular/router';
+import { UserService } from '../core/services/user.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
@@ -27,16 +28,19 @@ export class Dashboard implements OnInit {
   currentUser: User | null = null;
   isAdmin = false;
   isLoading = true;
+  clients: User[] = [];
 
   constructor(
     private dashboardService: DashboardService,
     private authService: AuthService,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadCurrentUser();
     this.loadDashboardData();
+    this.loadClients();
   }
 
   private loadCurrentUser(): void {
@@ -46,15 +50,26 @@ export class Dashboard implements OnInit {
 
   private loadDashboardData(): void {
     this.isLoading = true;
-    
     this.dashboardService.getDashboardStats().subscribe({
       next: (data) => {
         this.stats = data;
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement du dashboard:', error);
+      error: () => {
         this.isLoading = false;
+      }
+    });
+  }
+
+  private loadClients(): void {
+    this.userService.getAllClients().subscribe({
+      next: (list) => {
+        console.log('Clients chargés:', list);
+        this.clients = list || [];
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des clients:', error);
+        this.clients = [];
       }
     });
   }
@@ -63,11 +78,10 @@ export class Dashboard implements OnInit {
     this.authService.logout();
   }
 
-  refreshData(): void {
-    this.loadDashboardData();
+  openClient(client: User): void {
+    this.router.navigate(['/admin/client', client.id]);
   }
 
-  // Méthodes pour les actions rapides
   goToUserManagement(): void {
     this.router.navigate(['/admin/users']);
   }

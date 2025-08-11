@@ -12,12 +12,13 @@ export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'login', component: Login },
 
-  // Dashboard: redirige selon le rôle
   { path: 'dashboard', canActivate: [AuthGuard, RoleRedirectGuard], component: Dashboard },
   { path: 'dashboard/admin', canActivate: [AuthGuard, AdminGuard], loadComponent: () => Promise.resolve(AdminDashboard) },
   { path: 'dashboard/client', canActivate: [AuthGuard], loadComponent: () => Promise.resolve(ClientDashboard) },
 
-  // Admin
+  // Route directe pour la fiche client admin
+  { path: 'admin/client/:id', canActivate: [AuthGuard, AdminGuard], loadComponent: () => import('./admin/client-detail/client-detail').then(m => m.ClientDetail) },
+
   { 
     path: 'admin', 
     canActivate: [AuthGuard, AdminGuard],
@@ -27,12 +28,10 @@ export const routes: Routes = [
     ]
   },
 
-  // Documents (stubs à implémenter)
   { path: 'documents/upload', canActivate: [AuthGuard], loadComponent: () => import('./documents/upload/upload').then(m => m.Upload) },
   { path: 'documents/mine', canActivate: [AuthGuard], loadComponent: () => import('./documents/mine/mine').then(m => m.Mine) },
   { path: 'documents/received', canActivate: [AuthGuard], loadComponent: () => import('./documents/received/received').then(m => m.Received) },
 
-  // Profile et messages (stubs)
   { path: 'profile', canActivate: [AuthGuard], loadComponent: () => import('./profile/profile').then(m => m.Profile) },
   { path: 'messages', canActivate: [AuthGuard], loadComponent: () => import('./messages/messages').then(m => m.Messages) },
 

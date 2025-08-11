@@ -8,7 +8,7 @@ import { User } from '../../core/services/auth.service';
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './user-management.html',
   styleUrls: ['./user-management.scss']
 })
@@ -20,13 +20,16 @@ export class UserManagement implements OnInit {
   pageSize = 10;
   
   searchQuery = '';
-  selectedRole = '';
   
   showUserModal = false;
   editingUser: User | null = null;
   isSubmitting = false;
   
   userForm: FormGroup;
+  
+  // Messages de feedback
+  uploadSuccess: string | null = null;
+  uploadError: string | null = null;
 
   constructor(
     private userService: UserService,
@@ -48,12 +51,27 @@ export class UserManagement implements OnInit {
   loadUsers(): void {
     this.userService.getUsers(this.currentPage, this.pageSize).subscribe({
       next: (response) => {
-        this.users = response.content;
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
+        console.log('Réponse du service:', response);
+        if (response && response.content) {
+          this.users = response.content;
+          this.totalPages = response.totalPages || 1;
+          this.totalElements = response.totalElements || response.content.length;
+        } else if (Array.isArray(response)) {
+          this.users = response;
+          this.totalPages = 1;
+          this.totalElements = response.length;
+        } else {
+          console.warn('Format de réponse inattendu:', response);
+          this.users = [];
+          this.totalPages = 1;
+          this.totalElements = 0;
+        }
       },
       error: (error) => {
         console.error('Erreur lors du chargement des utilisateurs:', error);
+        this.users = [];
+        this.totalPages = 1;
+        this.totalElements = 0;
       }
     });
   }
@@ -68,23 +86,6 @@ export class UserManagement implements OnInit {
         },
         error: (error) => {
           console.error('Erreur lors de la recherche:', error);
-        }
-      });
-    } else {
-      this.loadUsers();
-    }
-  }
-
-  onRoleFilterChange(): void {
-    if (this.selectedRole) {
-      this.userService.getUsersByRole(this.selectedRole).subscribe({
-        next: (users) => {
-          this.users = users;
-          this.totalPages = 1;
-          this.currentPage = 0;
-        },
-        error: (error) => {
-          console.error('Erreur lors du filtrage par rôle:', error);
         }
       });
     } else {
@@ -123,53 +124,61 @@ export class UserManagement implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.userForm.valid) {
-      this.isSubmitting = true;
+    if (this.userForm.invalid) return;
+    
+    this.isSubmitting = true;
+    const formData = this.userForm.value;
+    
+    if (this.editingUser) {
+      // Modification d'un utilisateur existant
+      const updateRequest: UpdateUserRequest = {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email,
+        role: formData.role
+      };
       
-      if (this.editingUser) {
-        const updateData: UpdateUserRequest = {
-          nom: this.userForm.get('nom')?.value,
-          prenom: this.userForm.get('prenom')?.value,
-          email: this.userForm.get('email')?.value,
-          role: this.userForm.get('role')?.value
-        };
-        
-        this.userService.updateUser(this.editingUser.id, updateData).subscribe({
-          next: (updatedUser) => {
-            const index = this.users.findIndex(u => u.id === updatedUser.id);
-            if (index !== -1) {
-              this.users[index] = updatedUser;
-            }
-            this.closeUserModal();
-            this.isSubmitting = false;
-          },
-          error: (error) => {
-            console.error('Erreur lors de la modification:', error);
-            this.isSubmitting = false;
-          }
-        });
-      } else {
-        const createData: CreateUserRequest = {
-          nom: this.userForm.get('nom')?.value,
-          prenom: this.userForm.get('prenom')?.value,
-          email: this.userForm.get('email')?.value,
-          password: this.userForm.get('password')?.value,
-          role: this.userForm.get('role')?.value
-        };
-        
-        this.userService.createUser(createData).subscribe({
-          next: (newUser) => {
-            this.users.unshift(newUser);
-            this.closeUserModal();
-            this.isSubmitting = false;
-            this.loadUsers();
-          },
-          error: (error) => {
-            console.error('Erreur lors de la création:', error);
-            this.isSubmitting = false;
-          }
-        });
+      // Ne pas modifier le mot de passe si vide
+      if (formData.password && formData.password.trim()) {
+        updateRequest.password = formData.password;
       }
+      
+      this.userService.updateUser(this.editingUser.id, updateRequest).subscribe({
+        next: () => {
+          this.uploadSuccess = 'Utilisateur modifié avec succès.';
+          this.closeUserModal();
+          this.loadUsers();
+          this.isSubmitting = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors de la modification:', error);
+          this.uploadError = 'Erreur lors de la modification de l\'utilisateur.';
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      // Création d'un nouvel utilisateur
+      const createRequest: CreateUserRequest = {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role
+      };
+      
+      this.userService.createUser(createRequest).subscribe({
+        next: () => {
+          this.uploadSuccess = 'Utilisateur créé avec succès.';
+          this.closeUserModal();
+          this.loadUsers();
+          this.isSubmitting = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors de la création:', error);
+          this.uploadError = 'Erreur lors de la création de l\'utilisateur.';
+          this.isSubmitting = false;
+        }
+      });
     }
   }
 
