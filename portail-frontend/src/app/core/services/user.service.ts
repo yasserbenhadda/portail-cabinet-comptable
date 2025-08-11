@@ -12,9 +12,11 @@ export interface CreateUserRequest {
 }
 
 export interface UpdateUserRequest {
+  id?: number;
   nom?: string;
   prenom?: string;
   email?: string;
+  password?: string;
   role?: 'ADMIN' | 'COMPTABLE' | 'CLIENT';
   actif?: boolean;
 }
@@ -61,6 +63,14 @@ export class UserService {
 
   getUsersByRole(role: string): Observable<User[]> {
     return this.http.get<User[]>(`${this.API_URL}/users/role/${role}`);
+  }
+
+  getAllAdmins(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.API_URL}/users/admins`);
+  }
+
+  getAllClients(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.API_URL}/users/clients`);
   }
 
   activateUser(id: number): Observable<User> {

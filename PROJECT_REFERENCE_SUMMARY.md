@@ -42,7 +42,7 @@ mvn clean install
 mvn spring-boot:run
 
 # Ou avec le JAR compilé
-java -jar target/portail-cabinet-comptable-0.0.1-SNAPSHOT.jar
+djava -jar target/portail-cabinet-comptable-0.0.1-SNAPSHOT.jar
 ```
 
 **Port par défaut :** `8085`
@@ -62,11 +62,8 @@ cd portail-frontend
 # Installation des dépendances
 npm install
 
-# Lancement en mode développement
-npm start
-
-# Ou
-ng serve
+# Lancement en mode développement (port alternatif recommandé)
+npm start -- --port 4300 --no-open
 ```
 
 **Port par défaut :** `4200`
@@ -219,14 +216,12 @@ portail-frontend/src/app/
 - `/login` - Page de connexion
 
 ### **Routes Protégées (Authentification Requise)**
-- `/dashboard` - Tableau de bord principal
-- `/profile` - Profil utilisateur (à implémenter)
+- `/dashboard` - Tableau de bord principal (redirigé selon rôle)
+- `/profile` - Profil utilisateur
 
 ### **Routes Administrateur (Rôle ADMIN Requis)**
 - `/admin/users` - Gestion des utilisateurs
-- `/admin/documents` - Gestion des documents (à implémenter)
-- `/admin/settings` - Paramètres système (à implémenter)
-- `/admin/reports` - Rapports et statistiques (à implémenter)
+- `/admin/client/:id` - Détail client (2 colonnes: Chat + Documents reçus/Envoi)
 
 ---
 
@@ -320,17 +315,21 @@ portail-frontend/src/app/
 ## 📝 **Notes de Développement**
 
 ### **Dernières Modifications**
-- ✅ **Frontend Angular** complètement développé
-- ✅ **Système d'authentification** sécurisé
-- ✅ **Interface d'administration** fonctionnelle
-- ✅ **Tableau de bord** moderne et responsive
-- ✅ **Architecture modulaire** bien structurée
+- ✅ Redirection par rôle (admin/client)
+- ✅ Détail client: vue 2 colonnes (Chat + Documents reçus / Envoi)
+- ✅ Chat admin ↔ client fonctionnel (conversation et envoi)
+- ✅ Documents: upload et visibilité croisée via filtrage front sur `/api/documents/user/{userId}`
+- ✅ Gestion utilisateurs simplifiée (colonnes inutiles retirées, actions éditer/supprimer)
 
 ### **Points d'Attention**
-- **CORS** configuré pour le développement local
-- **JWT** avec expiration configurable
-- **Validation** des formulaires côté client et serveur
-- **Gestion d'erreurs** centralisée
+- CORS configuré pour le développement local
+- JWT avec expiration configurable
+- Validation des formulaires côté client et serveur
+- Gestion d'erreurs centralisée
+- Documents: le backend renvoie une vue unifiée sur `/api/documents/user/{userId}`. Le front filtre côté client:
+  - Envoyés: comparer `expediteurId | expediteur.id | expediteur`
+  - Reçus: comparer `destinataireId | destinataire.id | destinataire`
+  - Dates: `dateUpload` ou `dateDepot`
 
 ---
 
