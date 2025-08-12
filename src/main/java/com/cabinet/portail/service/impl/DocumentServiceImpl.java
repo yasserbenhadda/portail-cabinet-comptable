@@ -48,6 +48,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<Document> findByUserId(Long userId) {
+        return documentRepository.findByUserId(userId);
+    }
+
+    @Override
     public List<Document> findByExpediteur(User expediteur) {
         return documentRepository.findByExpediteur(expediteur);
     }
@@ -133,7 +138,10 @@ public class DocumentServiceImpl implements DocumentService {
 
             // Créer le document en base
             Document document = new Document();
-            document.setNomFichier(originalFilename);
+            // si un nom de fichier a été fourni côté API (via controller), il sera set avant save
+            if (document.getNomFichier() == null || document.getNomFichier().isBlank()) {
+                document.setNomFichier(originalFilename);
+            }
             document.setType(getFileType(fileExtension));
             document.setExpediteur(expediteur);
             document.setDestinataire(destinataire);

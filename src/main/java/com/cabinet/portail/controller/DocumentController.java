@@ -50,7 +50,8 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("expediteurId") Long expediteurId,
             @RequestParam("destinataireId") Long destinataireId,
-            @RequestParam(value = "description", required = false) String description) {
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "nomFichier", required = false) String nomFichier) {
         
         try {
             // Vérifier si le fichier est autorisé
@@ -67,6 +68,10 @@ public class DocumentController {
             }
 
             Document document = documentService.uploadDocument(file, expediteur.get(), destinataire.get(), description);
+            if (nomFichier != null && !nomFichier.isBlank()) {
+                document.setNomFichier(nomFichier);
+                document = documentService.save(document);
+            }
             return ResponseEntity.ok(document);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
@@ -111,12 +116,7 @@ public class DocumentController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Document>> getDocumentsByUser(@PathVariable Long userId) {
         try {
-            Optional<User> user = userService.findById(userId);
-            if (user.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-
-            List<Document> documents = documentService.findByUser(user.get());
+            List<Document> documents = documentService.findByUserId(userId);
             return ResponseEntity.ok(documents);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

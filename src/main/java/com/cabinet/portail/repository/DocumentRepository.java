@@ -46,6 +46,13 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     List<Document> findByUser(@Param("user") User user);
 
     /**
+     * Trouve tous les documents d'un utilisateur (comparaison par identifiant)
+     * pour éviter les problèmes d'entités détachées.
+     */
+    @Query("SELECT d FROM Document d WHERE d.expediteur.id = :userId OR d.destinataire.id = :userId")
+    List<Document> findByUserId(@Param("userId") Long userId);
+
+    /**
      * Trouve les documents par statut
      * 
      * @param statut le statut recherché

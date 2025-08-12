@@ -33,6 +33,11 @@ public interface DocumentService {
     List<Document> findByUser(User user);
 
     /**
+     * Variante basée sur l'identifiant utilisateur pour éviter les entités détachées.
+     */
+    List<Document> findByUserId(Long userId);
+
+    /**
      * Trouve les documents envoyés par un utilisateur
      * 
      * @param expediteur l'utilisateur expéditeur
