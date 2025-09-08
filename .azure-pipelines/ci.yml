@@ -1,0 +1,48 @@
+# .azure-pipelines/ci.yml
+trigger:
+  - main
+pr:
+  - main
+  - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+# ---- Build & Test BACKEND (Spring Boot) ----
+- stage: Backend
+  jobs:
+  - job: Build_Backend
+    steps:
+    - task: JavaToolInstaller@0
+      inputs:
+        versionSpec: '17'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
+
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'backend/pom.xml'
+        goals: 'clean verify'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+    - publish: backend/target
+      artifact: backend_artifact
+
+# ---- Build FRONTEND (Angular) ----
+- stage: Frontend
+  dependsOn: Backend
+  jobs:
+  - job: Build_Frontend
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+    - script: |
+        cd frontend
+        npm ci
+        npm run build
+      displayName: 'Build Angular'
+    - publish: frontend/dist
+      artifact: frontend_artifact
